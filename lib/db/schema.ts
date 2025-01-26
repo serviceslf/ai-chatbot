@@ -113,3 +113,52 @@ export const suggestion = pgTable(
 );
 
 export type Suggestion = InferSelectModel<typeof suggestion>;
+
+export const role = pgTable('Role', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  name: text('name').notNull().unique(),
+});
+
+export type Role = InferSelectModel<typeof role>;
+
+export const userRole = pgTable(
+  'UserRole',
+  {
+    userId: uuid('userid').notNull().references(() => user.id),
+    roleId: uuid('roleid').notNull().references(() => role.id),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.userId, table.roleId] }),
+  })
+);
+
+export type UserRole = InferSelectModel<typeof userRole>;
+
+export const toolGroup = pgTable('ToolGroup', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  name: text('name').notNull().unique(),
+});
+
+export type ToolGroup = InferSelectModel<typeof toolGroup>;
+
+export const tool = pgTable('Tool', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  name: text('name').notNull().unique(),
+  description: text('description'),
+  groupId: uuid('groupid').references(() => toolGroup.id),
+});
+
+export type Tool = InferSelectModel<typeof tool>;
+
+export const roleTool = pgTable(
+  'RoleTool',
+  {
+    roleId: uuid('roleid').notNull().references(() => role.id),
+    toolId: uuid('toolid').notNull().references(() => tool.id),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.roleId, table.toolId] }),
+  })
+);
+
+export type RoleTool = InferSelectModel<typeof roleTool>;

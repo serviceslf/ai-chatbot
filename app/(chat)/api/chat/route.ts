@@ -40,7 +40,8 @@ type AllowedTools =
   | 'createDocument'
   | 'updateDocument'
   | 'requestSuggestions'
-  | 'getWeather';
+  | 'getWeather'
+  | 'getWorkOrdersRequest';
 
 const blocksTools: AllowedTools[] = [
   'createDocument',
@@ -50,7 +51,9 @@ const blocksTools: AllowedTools[] = [
 
 const weatherTools: AllowedTools[] = ['getWeather'];
 
-const allTools: AllowedTools[] = [...blocksTools, ...weatherTools];
+const jdeTools: AllowedTools[] = ['getWorkOrdersRequest'];
+
+const allTools: AllowedTools[] = [...blocksTools, ...weatherTools, ...jdeTools];
 
 export async function POST(request: Request) {
   const {
@@ -121,6 +124,23 @@ export async function POST(request: Request) {
 
               const weatherData = await response.json();
               return weatherData;
+            },
+          },
+          getWorkOrdersRequest: {
+            description: 'Get pending work orders from JDE system',
+            parameters: z.object({}),
+            execute: async () => {
+              try {
+                const response = await fetch('http://localhost:3010/api/jde/getWorkOrdersRequest');
+                if (!response.ok) {
+                  throw new Error('Failed to fetch work orders');
+                }
+                const workOrders = await response.json();
+                return workOrders;
+              } catch (error) {
+                console.error('Error fetching work orders:', error);
+                throw error;
+              }
             },
           },
           createDocument: {
